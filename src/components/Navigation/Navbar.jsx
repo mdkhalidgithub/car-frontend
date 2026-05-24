@@ -134,7 +134,7 @@ const Navbar = ({ theme, setTheme }) => {
       </div>
 
       {/* Mobile Menu */}
-      <ResponsiveMenu showMenu={showMenu} NavLinks={filteredNavLinks} />
+      <ResponsiveMenu showMenu={showMenu} setShowMenu={setShowMenu} NavLinks={filteredNavLinks} />
     </nav>
   );
 };
