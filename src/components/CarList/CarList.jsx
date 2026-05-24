@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-
-// Use environment variable for API URL, fallback to localhost for dev
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+import { carAPI } from '../../services/api';
 
 function CarList() {
   const [cars, setCars] = useState([]);
@@ -12,15 +10,10 @@ function CarList() {
   useEffect(() => {
     const fetchCars = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/cars`);
-        const data = await response.json();
-        if (response.ok) {
-          setCars(data);
-        } else {
-          setError('Failed to fetch cars');
-        }
+        const data = await carAPI.getAll();
+        setCars(data);
       } catch (error) {
-        setError('Error loading cars');
+        setError(error.message || 'Error loading cars');
         console.error('Error fetching cars:', error);
       } finally {
         setLoading(false);
@@ -33,7 +26,7 @@ function CarList() {
   if (loading) {
     return (
       <div className='pb-24 pt-12 bg-white dark:bg-dark dark:text-white'>
-        <div className="container">
+        <div className="container mx-auto px-4">
           <div className="flex justify-center items-center h-64">
             <div className="text-xl">Loading cars...</div>
           </div>
@@ -45,7 +38,7 @@ function CarList() {
   if (error) {
     return (
       <div className='pb-24 pt-12 bg-white dark:bg-dark dark:text-white'>
-        <div className="container">
+        <div className="container mx-auto px-4">
           <div className="flex justify-center items-center h-64">
             <div className="text-xl text-red-500">{error}</div>
           </div>
@@ -56,7 +49,7 @@ function CarList() {
 
   return (
     <div className='pb-24 pt-12 bg-white dark:bg-dark dark:text-white'>
-      <div className="container">
+      <div className="container mx-auto px-4">
         {/*heading*/}
         <h1 className='text-3xl sm:text-4xl font-semibold font-serif mb-3'>
           Our Premium Car Collection
@@ -77,7 +70,7 @@ function CarList() {
                 data-aos-delay={index * 100}
                 className='space-y-3 border-2 border-gray-300 hover:border-primary p-4 rounded-xl relative group bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-all duration-300'
               >
-                <div className='w-full h-[160px] bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden'>
+                <div className='w-full h-[160px] bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden relative'>
                   {car.image ? (
                     <img
                       className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-300'
@@ -89,7 +82,7 @@ function CarList() {
                       }}
                     />
                   ) : null}
-                  <div className="hidden items-center justify-center text-gray-500 text-lg font-medium">
+                  <div className="hidden absolute inset-0 items-center justify-center text-gray-500 text-lg font-medium bg-gray-100">
                     {car.brand} {car.model}
                   </div>
                 </div>

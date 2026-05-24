@@ -17,6 +17,7 @@ import Signup from './components/Auth/Signup';
 import Booking from './components/Booking/Booking.jsx';
 import { AuthProvider } from './context/AuthContext';
 import ManageBookings from './components/Booking/ManageBookings.jsx';
+import ProtectedRoute from './components/Auth/ProtectedRoute.jsx';
 
 const App = () => {
 
@@ -55,10 +56,18 @@ AOS.refresh();
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/booking" element={<Booking />} />
+        <Route path="/booking" element={
+          <ProtectedRoute>
+            <Booking />
+          </ProtectedRoute>
+        } />
         <Route path="/cars" element={<CarList />} />
         <Route path="/about" element={<About />} />
-        <Route path="/my-bookings" element={<ManageBookings />} />
+        <Route path="/my-bookings" element={
+          <ProtectedRoute>
+            <ManageBookings />
+          </ProtectedRoute>
+        } />
         <Route path="/" element={
           <>
             <Hero theme={theme}/>

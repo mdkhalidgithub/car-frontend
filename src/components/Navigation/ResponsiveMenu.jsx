@@ -54,9 +54,9 @@ const ResponsiveMenu = ({ showMenu, NavLinks }) => {
       <div>
         {/* User Info */}
         <div className='flex items-center gap-3 mb-8'>
-          <FaUserCircle size={50} />
+          <FaUserCircle size={50} className="text-gray-400" />
           <div>
-            <h1>{user ? `Hello, ${user.name}` : 'Hello User'}</h1>
+            <h1 className="font-semibold text-gray-800 dark:text-white">{user ? `Hello, ${user.name}` : 'Hello User'}</h1>
             <h1 className='text-sm text-gray-500 dark:text-gray-400'>{user ? user.email : 'Premium User'}</h1>
           </div>
         </div>
@@ -70,19 +70,32 @@ const ResponsiveMenu = ({ showMenu, NavLinks }) => {
               </li>
             ))}
             {user && (
-              <li>
-                <Link to="/my-bookings" className='block hover:text-primary transition-all dark:text-white dark:hover:text-primary dark:font-bold dark:border-b dark:border-primary'>
-                  Manage Bookings
-                </Link>
-              </li>
+              <>
+                <li>
+                  <Link to="/my-bookings" className='block hover:text-primary transition-all dark:text-white dark:hover:text-primary dark:font-bold dark:border-b dark:border-primary'>
+                    Manage Bookings
+                  </Link>
+                </li>
+                <li>
+                  <button
+                    onClick={() => {
+                      logout();
+                      window.location.reload();
+                    }}
+                    className='w-full text-left block text-red-500 hover:text-red-600 transition-all font-semibold'
+                  >
+                    Logout
+                  </button>
+                </li>
+              </>
             )}
           </ul>
         </nav>
       </div>
 
       {/* Footer */}
-      <div className='text-sm text-center'>
-        Made with ❤️ by <a href="https://github.com/mdkhalidgithub" className='underline'>MD KHALID</a>
+      <div className='text-sm text-center text-gray-500 dark:text-gray-400'>
+        Made with ❤️ by <a href="https://github.com/mdkhalidgithub" className='underline font-medium hover:text-primary transition-colors'>MD KHALID</a>
       </div>
     </div>
   );

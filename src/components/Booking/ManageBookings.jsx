@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+import { bookingAPI } from '../../services/api';
 
 const ManageBookings = () => {
   const { user, isAuthenticated } = useAuth();
@@ -15,14 +14,7 @@ const ManageBookings = () => {
       setLoading(true);
       setError('');
       try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`${API_BASE_URL}/api/bookings/my-bookings`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.message || 'Failed to fetch bookings');
+        const data = await bookingAPI.getMyBookings();
         setBookings(data);
       } catch (err) {
         setError(err.message);
@@ -40,16 +32,7 @@ const ManageBookings = () => {
     setError('');
     setSuccess('');
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE_URL}/api/bookings/${bookingId}/cancel`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || 'Failed to cancel booking');
+      await bookingAPI.cancel(bookingId);
       setSuccess('Booking cancelled successfully.');
       setBookings(prev => prev.map(b => b._id === bookingId ? { ...b, status: 'cancelled' } : b));
     } catch (err) {
@@ -68,41 +51,53 @@ const ManageBookings = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-black text-gray-900 dark:text-white py-8 transition-colors duration-300">
       <div className="container mx-auto px-4 max-w-4xl">
-        <h1 className="text-4xl font-bold text-center mb-8 text-gray-800">My Bookings</h1>
+        <h1 className="text-4xl font-bold text-center mb-8 text-gray-800 dark:text-white font-serif">My Bookings</h1>
+        
         {/* User Info Card */}
-        <div className="bg-white rounded-lg shadow p-6 mb-8 flex flex-col md:flex-row md:items-center md:justify-between">
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow dark:shadow-gray-950/50 border dark:border-gray-800 p-6 mb-8 flex flex-col md:flex-row md:items-center md:justify-between">
           <div>
-            <div className="font-semibold text-lg mb-1">User Information</div>
-            <div className="text-gray-700 text-sm mb-1">Name: <span className="font-medium">{user?.name || 'N/A'}</span></div>
-            <div className="text-gray-700 text-sm mb-1">Email: <span className="font-medium">{user?.email || 'N/A'}</span></div>
+            <div className="font-semibold text-lg mb-2 text-gray-800 dark:text-white border-b dark:border-gray-800 pb-1">User Information</div>
+            <div className="text-gray-700 dark:text-gray-300 text-sm mb-1">Name: <span className="font-medium text-gray-900 dark:text-white">{user?.name || 'N/A'}</span></div>
+            <div className="text-gray-700 dark:text-gray-300 text-sm mb-1">Email: <span className="font-medium text-gray-900 dark:text-white">{user?.email || 'N/A'}</span></div>
             {user?.username && (
-              <div className="text-gray-700 text-sm mb-1">Username: <span className="font-medium">{user.username}</span></div>
+              <div className="text-gray-700 dark:text-gray-300 text-sm mb-1">Username: <span className="font-medium text-gray-900 dark:text-white">{user.username}</span></div>
             )}
-            <div className="text-gray-700 text-sm">User ID: <span className="font-medium">{user?.id || user?._id || 'N/A'}</span></div>
+            <div className="text-gray-700 dark:text-gray-300 text-sm">User ID: <span className="font-medium text-gray-900 dark:text-white">{user?.id || user?._id || 'N/A'}</span></div>
           </div>
         </div>
-        {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">{error}</div>}
-        {success && <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">{success}</div>}
+
+        {error && (
+          <div className="bg-red-100 dark:bg-red-950/50 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded mb-6">
+            {error}
+          </div>
+        )}
+        
+        {success && (
+          <div className="bg-green-100 dark:bg-green-950/50 border border-green-400 dark:border-green-800 text-green-700 dark:text-green-400 px-4 py-3 rounded mb-6">
+            {success}
+          </div>
+        )}
+        
         {loading ? (
-          <div className="text-center text-lg">Loading bookings...</div>
+          <div className="text-center text-lg text-gray-600 dark:text-gray-400">Loading bookings...</div>
         ) : bookings.length === 0 ? (
-          <div className="text-center text-gray-600">No bookings found.</div>
+          <div className="text-center text-gray-600 dark:text-gray-400 font-medium text-lg py-12">No bookings found.</div>
         ) : (
           <div className="space-y-6">
             {bookings.map(booking => (
-              <div key={booking._id} className="bg-white rounded-lg shadow-md p-6 flex flex-col md:flex-row md:items-center md:justify-between">
+              <div key={booking._id} className="bg-white dark:bg-gray-900 rounded-lg shadow-md dark:shadow-gray-950/50 border dark:border-gray-800 p-6 flex flex-col md:flex-row md:items-center md:justify-between">
                 <div>
-                  <div className="font-semibold text-lg mb-2">{booking.car?.brand} {booking.car?.model} ({booking.car?.year})</div>
-                  <div className="text-gray-600 text-sm mb-1">From: <span className="font-medium">{new Date(booking.startDate).toLocaleDateString()}</span> To: <span className="font-medium">{new Date(booking.endDate).toLocaleDateString()}</span></div>
-                  <div className="text-gray-600 text-sm mb-1">Pickup: {booking.pickupLocation || 'N/A'} | Return: {booking.returnLocation || 'N/A'}</div>
-                  <div className="text-gray-600 text-sm mb-1">Total Price: <span className="font-medium">${booking.totalPrice}</span></div>
-                  <div className="text-gray-600 text-sm mb-1">Status: <span className={booking.status === 'cancelled' ? 'text-red-500 font-bold' : 'text-green-600 font-bold'}>{booking.status || 'active'}</span></div>
+                  <div className="font-semibold text-lg mb-2 text-gray-800 dark:text-white">{booking.car?.brand} {booking.car?.model} ({booking.car?.year})</div>
+                  <div className="text-gray-600 dark:text-gray-300 text-sm mb-1">From: <span className="font-medium text-gray-900 dark:text-white">{new Date(booking.startDate).toLocaleDateString()}</span> To: <span className="font-medium text-gray-900 dark:text-white">{new Date(booking.endDate).toLocaleDateString()}</span></div>
+                  <div className="text-gray-600 dark:text-gray-300 text-sm mb-1">Pickup: {booking.pickupLocation || 'N/A'} | Return: {booking.returnLocation || 'N/A'}</div>
+                  <div className="text-gray-600 dark:text-gray-300 text-sm mb-1">Total Price: <span className="font-medium text-gray-900 dark:text-white">${booking.totalPrice}</span></div>
+                  <div className="text-gray-600 dark:text-gray-300 text-sm mb-1">Status: <span className={booking.status === 'cancelled' ? 'text-red-500 font-bold' : 'text-green-600 dark:text-green-500 font-bold'}>{booking.status || 'active'}</span></div>
                 </div>
                 <div className="mt-4 md:mt-0 md:ml-6">
                   <button
-                    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition"
+                    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 disabled:bg-gray-300 dark:disabled:bg-gray-800 disabled:cursor-not-allowed transition font-semibold"
                     onClick={() => handleCancel(booking._id)}
                     disabled={booking.status === 'cancelled'}
                   >
@@ -118,4 +113,4 @@ const ManageBookings = () => {
   );
 };
 
-export default ManageBookings; 
+export default ManageBookings;

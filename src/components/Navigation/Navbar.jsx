@@ -7,9 +7,9 @@ import { useAuth } from '../../context/AuthContext';
 import ResponsiveMenu from "./ResponsiveMenu.jsx";
 
 const NavLinks = [
-  { id: "1", name: "HOME", link: "/#" },
-  { id: "2", name: "CARS", link: "/#cars" },
-  { id: "3", name: "ABOUT", link: "/#about" },
+  { id: "1", name: "HOME", link: "/" },
+  { id: "2", name: "CARS", link: "/cars" },
+  { id: "3", name: "ABOUT", link: "/about" },
   { id: "4", name: "BOOKING", link: "/booking" },
   { id: "5", name: "LOGIN", link: "/login" },
   { id: "6", name: "SIGNUP", link: "/signup" },
@@ -27,20 +27,29 @@ const Navbar = ({ theme, setTheme }) => {
     navigate('/login');
   };
 
+  // Filter links: if logged in, do not show Login and Signup
+  const filteredNavLinks = NavLinks.filter((link) => {
+    if (user && (link.name === "LOGIN" || link.name === "SIGNUP")) {
+      return false;
+    }
+    return true;
+  });
+
   return (
     <nav className='shadow-md bg-white dark:bg-dark dark:text-white duration-300 relative z-40'>
       <div className="container mx-auto px-4 py-3">
         <div className="flex justify-between items-center">
-          <h1 className='text-3xl font-bold font-serif'>CarRental</h1>
+          <Link to="/" className='text-3xl font-bold font-serif hover:text-primary transition-colors'>
+            CarRental
+          </Link>
 
           {/* Desktop Menu */}
           <ul className='hidden md:flex items-center gap-8'>
-            {NavLinks.map((data) => (
+            {filteredNavLinks.map((data) => (
               <li key={data.id}>
                 {data.name === "LOGIN" ? (
                   <Link
                     to="/login"
-                    className='py-4 px-3 hover:border-b-2 hover:text-primary hover:border-primary transition-colors duration-500 text-lg font-medium dark:text-white dark:hover:text-primary dark:border dark:border-transparent dark:hover:border-primary'
                     className='py-4 hover:border-b-2 hover:text-primary hover:border-primary transition-colors duration-500 text-lg font-medium dark:text-white dark:hover:text-primary'
                   >
                     {data.name}
@@ -74,12 +83,12 @@ const Navbar = ({ theme, setTheme }) => {
                     {data.name}
                   </Link>
                 ) : (
-                  <a
-                    href={data.link}
+                  <Link
+                    to={data.link}
                     className='py-4 hover:border-b-2 hover:text-primary hover:border-primary transition-colors duration-500 text-lg font-medium dark:text-white dark:hover:text-primary'
                   >
                     {data.name}
-                  </a>
+                  </Link>
                 )}
               </li>
             ))}
@@ -108,16 +117,16 @@ const Navbar = ({ theme, setTheme }) => {
           {/* Theme Toggle & Mobile Menu Icon */}
           <div className="flex items-center gap-4">
             {theme === "dark" ? (
-              <BiSolidSun onClick={() => setTheme("light")} className='text-2xl cursor-pointer' />
+              <BiSolidSun onClick={() => setTheme("light")} className='text-2xl cursor-pointer hover:text-primary transition-colors' />
             ) : (
-              <BiSolidMoon onClick={() => setTheme("dark")} className='text-2xl cursor-pointer' />
+              <BiSolidMoon onClick={() => setTheme("dark")} className='text-2xl cursor-pointer hover:text-primary transition-colors' />
             )}
             {/* Mobile Menu Icon */}
             <div className='md:hidden'>
               {showMenu ? (
-                <HiMenuAlt1 onClick={toggleMenu} size={30} className='cursor-pointer transition-all' />
+                <HiMenuAlt1 onClick={toggleMenu} size={30} className='cursor-pointer transition-all hover:text-primary' />
               ) : (
-                <HiMenuAlt3 onClick={toggleMenu} size={30} className='cursor-pointer transition-all' />
+                <HiMenuAlt3 onClick={toggleMenu} size={30} className='cursor-pointer transition-all hover:text-primary' />
               )}
             </div>
           </div>
@@ -125,7 +134,7 @@ const Navbar = ({ theme, setTheme }) => {
       </div>
 
       {/* Mobile Menu */}
-      <ResponsiveMenu showMenu={showMenu} NavLinks={NavLinks} />
+      <ResponsiveMenu showMenu={showMenu} NavLinks={filteredNavLinks} />
     </nav>
   );
 };
